@@ -3,7 +3,7 @@ const typeDefs = `
     _id: ID!
     word: String!
   }
-  
+
   type Query {
     words: [Word]
   }
