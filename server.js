@@ -11,7 +11,7 @@ const cors = require('cors');
 const { typeDefs, resolvers } = require('./server/schemas');
 const db = require('./server/config/connection');
 
-// const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
 var corsOptions = {
   origin: '*',
@@ -57,7 +57,7 @@ const startApolloServer = async (app, httpServer) => {
   // });
 
   db.once('open', async () => {
-    await new Promise((resolve) => httpServer.listen({ port: 3001 }, resolve));
+    await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve));
   });
 };
 

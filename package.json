@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "tests",
-    "start": "nodemon server.js",
+    "prod": "set NODE_ENV=PRODUCTION && node server",
+    "start": "node server.js",
+    "dev": "set NODE_ENV=DEVELOPMENT && nodemon server.js",
     "seed": "node server/seeds/seed.js"
   },
   "keywords": [
