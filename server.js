@@ -1,6 +1,7 @@
 const express = require('express');
 // Import the ApolloServer class
 const http = require("http");
+const bodyParser = require('body-parser');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
@@ -10,7 +11,7 @@ const cors = require('cors');
 const { typeDefs, resolvers } = require('./server/schemas');
 const db = require('./server/config/connection');
 
-const PORT = process.env.PORT || 3001;
+// const PORT = process.env.PORT || 3001;
 
 var corsOptions = {
   origin: '*',
@@ -20,10 +21,17 @@ var corsOptions = {
 const app = express();
 const httpServer = http.createServer(app);
 
+// Set up Apollo Server
+// const server = new ApolloServer({
+//   typeDefs,
+//   resolvers,
+//   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+// });
+// await server.start();
 
 
 
-// Create a new instance of an Apollo server with the GraphQL schema
+
 const startApolloServer = async (app, httpServer) => {
   const server = new ApolloServer({
     typeDefs,
@@ -31,21 +39,25 @@ const startApolloServer = async (app, httpServer) => {
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
-  app.use(express.urlencoded({ extended: false }));
-  app.use(express.json());
-  app.use(cors(corsOptions));
+  await server.start();
+
+  app.use(
+    cors(corsOptions),
+    bodyParser.json(),
+    expressMiddleware(server),
+  );
   app.all('*', function (req, res, next) {
     next();
   });
 
-  await server.start();
+  // db.once('open', () => {
+  //   app.listen(PORT, () => {
+  //     console.log(`API server running on port ${PORT}!`);
+  //   });
+  // });
 
-  app.use('/graphql', expressMiddleware(server));
-
-  db.once('open', () => {
-    app.listen(PORT, () => {
-      console.log(`API server running on port ${PORT}!`);
-    });
+  db.once('open', async () => {
+    await new Promise((resolve) => httpServer.listen({ port: 3001 }, resolve));
   });
 };
 
